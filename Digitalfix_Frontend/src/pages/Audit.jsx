@@ -1,0 +1,7 @@
+import { Search, ShieldCheck, User, Clock3 } from 'lucide-react'
+const events=[
+ {time:'20:14',type:'ORDEN_CERRADA',user:'supervisor@digitalfix.cl',detail:'Cerró la orden OT-1041',trace:'trc-81ab4'},
+ {time:'19:52',type:'ESTADO_ACTUALIZADO',user:'j.morales@digitalfix.cl',detail:'OT-1048 cambió a EN_EJECUCIÓN',trace:'trc-44cc1'},
+ {time:'19:34',type:'TECNICO_ASIGNADO',user:'supervisor@digitalfix.cl',detail:'Asignó a C. Rojas en OT-1047',trace:'trc-20fa9'},
+ {time:'18:42',type:'ORDEN_CREADA',user:'cliente@andes.cl',detail:'Creó la orden OT-1048',trace:'trc-b72d8'}]
+export default function Audit(){return <><div className="page-heading"><div><span className="eyebrow">AUDITORÍA</span><h1>Timeline de eventos</h1><p>Trazabilidad de quién hizo qué y cuándo.</p></div></div><article className="card"><div className="toolbar"><div className="search"><Search size={18}/><input placeholder="Buscar usuario, orden o evento..."/></div><input type="date" className="date-input"/></div><div className="timeline">{events.map((e,i)=><div className="timeline-item" key={i}><div className="timeline-dot"><ShieldCheck size={16}/></div><div className="timeline-body"><div className="timeline-top"><strong>{e.type.replaceAll('_',' ')}</strong><span><Clock3 size={14}/>{e.time}</span></div><p>{e.detail}</p><div className="event-meta"><span><User size={14}/>{e.user}</span><code>{e.trace}</code></div></div></div>)}</div></article></>}
