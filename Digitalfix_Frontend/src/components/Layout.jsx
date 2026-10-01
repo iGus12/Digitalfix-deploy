@@ -99,7 +99,7 @@ export default function Layout({ children }) {
     try {
       await instance.logoutRedirect({
         account,
-        postLogoutRedirectUri: 'http://localhost:5173/login'
+        postLogoutRedirectUri: `${window.location.origin}/login`
       })
     } catch (error) {
       console.error(
