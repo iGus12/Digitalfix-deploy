@@ -56,12 +56,20 @@ services:
       - digitalfix-net
 
   # 5. Frontend React (Vite + Nginx)
-  frontend:
-    build: ./Digitalfix_Frontend
-    container_name: frontend-digitalfix
-    ports:
-      - "5173:80"
-    depends_on:
-      - ms-bff
-    networks:
-      - digitalfix-net
+frontend:
+  build:
+    context: ./Digitalfix_Frontend
+    args:
+      VITE_API_BASE_URL: https://digitalfix-app.duckdns.org
+      VITE_AZURE_CLIENT_ID: 415c10b4-9fe0-438c-a3a2-73224c062448
+      VITE_AZURE_TENANT_ID: cc0041c5-4918-4ed1-9a20-23dc386471d4
+      VITE_AZURE_REDIRECT_URI: https://digitalfix-app.duckdns.org
+      VITE_AZURE_API_SCOPE: api://898e9076-6eb3-4901-a900-1017f8a7a2f6/access_as_user
+
+  container_name: frontend-digitalfix
+  ports:
+    - "5173:80"
+  depends_on:
+    - ms-bff
+  networks:
+    - digitalfix-net

@@ -40,5 +40,10 @@ export const msalConfig = {
 };
 
 export const loginRequest = {
-  scopes: ["openid", "profile", "email", import.meta.env.VITE_AZURE_SCOPE],
+  scopes: [
+    "openid",
+    "profile",
+    "email",
+    import.meta.env.VITE_AZURE_API_SCOPE
+  ],
 };

@@ -33,7 +33,7 @@ export default function Workorders() {
   const fetchWorkOrders = async () => {
     try {
       const response = await instance.acquireTokenSilent({
-        scopes: [`${import.meta.env.VITE_AZURE_CLIENT_ID}/.default`], 
+        scopes: [import.meta.env.VITE_AZURE_API_SCOPE], 
         account: accounts[0]
       });
       const data = await api.getWorkorders(response.accessToken);
