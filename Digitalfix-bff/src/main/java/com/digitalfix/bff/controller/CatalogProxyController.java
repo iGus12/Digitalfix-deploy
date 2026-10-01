@@ -14,7 +14,7 @@ public class CatalogProxyController {
     private RestTemplate restTemplate;
 
     
-    private final String CATALOG_URL = "http://localhost:8081/api/catalog/services";
+    private final String CATALOG_URL = "http://ms-catalog:8081/api/catalog/services";
 
     
     @GetMapping("/services")

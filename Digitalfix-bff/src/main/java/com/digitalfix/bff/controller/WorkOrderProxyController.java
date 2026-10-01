@@ -10,14 +10,14 @@ import org.springframework.web.client.RestTemplate;
 
 @RestController
 @RequestMapping("/api/workorders")
-@CrossOrigin(origins = "http://localhost:5173")
+@CrossOrigin(origins = "https://digitalfix-app.duckdns.org")
 public class WorkOrderProxyController {
 
     @Autowired
     private RestTemplate restTemplate;
 
     
-    private final String WORKORDERS_URL = "http://localhost:8082/api/workorders";
+    private final String WORKORDERS_URL = "http://ms-workorders:8082/api/workorders";
 
     @GetMapping
     public ResponseEntity<Object> getAllOrders() {
