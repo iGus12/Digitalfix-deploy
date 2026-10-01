@@ -99,13 +99,10 @@ export default function Layout({ children }) {
     try {
       await instance.logoutRedirect({
         account,
-        postLogoutRedirectUri: `${window.location.origin}/login`
+        postLogoutRedirectUri: 'https://digitalfix-app.duckdns.org/login'
       })
     } catch (error) {
-      console.error(
-        'Error al cerrar sesión:',
-        error
-      )
+      console.error('Error al cerrar sesión:', error)
     }
   }
 
