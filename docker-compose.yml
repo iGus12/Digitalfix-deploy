@@ -58,6 +58,7 @@ services:
   # 5. Frontend React (Vite + Nginx)
   frontend:
     build:
+      dockerfile: DockerFile
       context: ./Digitalfix_Frontend
       args:
         VITE_API_BASE_URL: https://digitalfix-app.duckdns.org
