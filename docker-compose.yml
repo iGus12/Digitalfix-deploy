@@ -61,7 +61,7 @@ services:
       dockerfile: DockerFile
       context: ./Digitalfix_Frontend
       args:
-        VITE_API_BASE_URL: https://digitalfix-app.duckdns.org
+        VITE_API_BASE_URL: https://digitalfix-api.duckdns.org
         VITE_AZURE_CLIENT_ID: 898e9076-6eb3-4901-a900-1017f8a7a2f6
         VITE_AZURE_TENANT_ID: cc0041c5-4918-4ed1-9a20-23dc386471d4
         VITE_AZURE_REDIRECT_URI: https://digitalfix-app.duckdns.org
