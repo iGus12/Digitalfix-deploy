@@ -9,6 +9,7 @@ services:
   oracle-db:
     image: gvenzl/oracle-xe:slim
     container_name: oracle-digitalfix
+    restart: unless-stopped
     environment:
       - ORACLE_PASSWORD=oracle
     ports:
@@ -20,6 +21,7 @@ services:
   ms-catalog:
     build: ./Digitalfix-Catalog
     container_name: ms-catalog
+    restart: unless-stopped
     ports:
       - "8081:8081"
     environment:
@@ -35,6 +37,7 @@ services:
   ms-workorders:
     build: ./Digitalfix-workorders
     container_name: ms-workorders
+    restart: unless-stopped
     ports:
       - "8082:8082"
     environment:
@@ -50,6 +53,7 @@ services:
   ms-bff:
     build: ./Digitalfix-bff
     container_name: ms-bff
+    restart: unless-stopped
     ports:
       - "8080:8080"
     networks:
@@ -68,6 +72,7 @@ services:
         VITE_AZURE_API_SCOPE: api://898e9076-6eb3-4901-a900-1017f8a7a2f6/access_as_user
 
     container_name: frontend-digitalfix
+    restart: unless-stopped
     ports:
       - "5173:80"
     depends_on:
