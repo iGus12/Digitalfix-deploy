@@ -3,7 +3,9 @@ version: '3.8'
 networks:
   digitalfix-net:
     driver: bridge
-
+    
+volumes:
+  oracle-data:
 services:
   # 1. Base de Datos Oracle XE
   oracle-db:
