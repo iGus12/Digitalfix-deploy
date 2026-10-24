@@ -79,3 +79,18 @@ services:
       - ms-bff
     networks:
       - digitalfix-net
+
+
+  # 6. Motor de Mensajería RabbitMQ
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: ms-rabbitmq
+    restart: unless-stopped
+    environment:
+      - RABBITMQ_DEFAULT_USER=admin
+      - RABBITMQ_DEFAULT_PASS=admin123
+    ports:
+      - "5672:5672"   # Puerto interno para que Spring Boot envíe los mensajes
+      - "15672:15672" # Puerto externo para que tú veas el panel gráfico web
+    networks:
+      - digitalfix-net    
