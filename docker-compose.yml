@@ -94,3 +94,20 @@ services:
       - "15672:15672" # Puerto externo para que tú veas el panel gráfico web
     networks:
       - digitalfix-net    
+
+ # 7. Microservicio Rabbit Admin
+  ms-rabbit-admin:
+    build: ./RabbitAdmin
+    container_name: ms-rabbit-admin
+    restart: unless-stopped
+    ports:
+      - "8085:8085"
+    environment:
+      - RABBITMQ_HOST=rabbitmq
+      - RABBITMQ_PORT=5672
+      - RABBITMQ_USER=admin
+      - RABBITMQ_PASSWORD=admin123
+    depends_on:
+      - rabbitmq
+    networks:
+      - digitalfix-net     
