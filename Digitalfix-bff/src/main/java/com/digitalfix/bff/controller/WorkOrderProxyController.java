@@ -10,7 +10,10 @@ import org.springframework.web.client.RestTemplate;
 
 @RestController
 @RequestMapping("/api/workorders")
-@CrossOrigin(origins = "http://localhost:5173")
+@CrossOrigin(origins = {
+    "http://localhost:5173",
+    "https://digitalfix-app.duckdns.org"
+})
 public class WorkOrderProxyController {
 
     @Autowired
