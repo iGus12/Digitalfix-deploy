@@ -1,20 +1,23 @@
+
 package com.digitalfix.bff;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
+import org.springframework.http.client.JdkClientHttpRequestFactory;
 import org.springframework.web.client.RestTemplate;
 
 @SpringBootApplication
 public class MsDigitalfixBffApplication {
 
-	public static void main(String[] args) {
-		SpringApplication.run(MsDigitalfixBffApplication.class, args);
-	}
+    public static void main(String[] args) {
+        SpringApplication.run(MsDigitalfixBffApplication.class, args);
+    }
 
-
-	@Bean
-	public RestTemplate restTemplate() {
-		return new RestTemplate();
-	}
+    @Bean
+    public RestTemplate restTemplate() {
+        return new RestTemplate(
+            new JdkClientHttpRequestFactory()
+        );
+    }
 }

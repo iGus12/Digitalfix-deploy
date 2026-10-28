@@ -25,12 +25,14 @@ public class SecurityConfig {
             .cors(Customizer.withDefaults())
             .csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(authz -> authz
-                .requestMatchers("/api/admin/**").hasRole("Admin")
-                .requestMatchers("/api/cliente/**").hasRole("Cliente")
-                .requestMatchers("/api/supervisor/**").hasAnyRole("Supervisor", "Admin")
-                .requestMatchers("/api/catalog/**").hasAnyRole("Supervisor", "Admin")
-                .requestMatchers("/api/audit/**").hasAnyRole("Auditor", "Admin")
-                .requestMatchers("/api/workorders/**").hasAnyRole("Admin", "Supervisor", "Cliente")
+                .requestMatchers("/api/bff/admin/**").hasRole("Admin")
+                
+                .requestMatchers("/api/bff/cliente/**").hasRole("Cliente")
+                .requestMatchers("/api/bff/supervisor/**").hasAnyRole("Supervisor", "Admin")
+                .requestMatchers("/api/bff/catalog/**").hasAnyRole("Supervisor", "Admin")
+                .requestMatchers("/api/bff/audit/**").hasAnyRole("Auditor", "Admin")
+                .requestMatchers("/api/bff/workorders/**").hasAnyRole("Admin", "Supervisor", "Cliente")
+                .requestMatchers("/api/bff/notificaciones/**").hasAnyRole("Admin", "Supervisor", "Cliente", "Auditor")
                 .anyRequest().authenticated()
             )
             .oauth2ResourceServer(oauth2 -> oauth2
@@ -44,13 +46,9 @@ public class SecurityConfig {
     @Bean
     CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(Arrays.asList(
-            "http://localhost:5173",
-            "https://digitalfix-app.duckdns.org"
-        ));
-        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        configuration.setAllowedOrigins(Arrays.asList("http://localhost:5173"));
+        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type"));
-        configuration.setAllowCredentials(true);
         
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);

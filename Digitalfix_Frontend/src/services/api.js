@@ -34,6 +34,19 @@ export const api = {
   getKpis: (token) => request('/api/report/kpis?range=last24h', {}, token),
   getAudit: (token) => request('/api/audit/events', {}, token),
   createCatalogItem: (data, token) => request('/api/catalog/services', { method: 'POST', body: JSON.stringify(data) }, token),
+  
+  // Notificaciones internas
+  getNotificaciones: (token) =>
+    request('/api/bff/notificaciones', {}, token),
+
+  getNotificacionesNoLeidas: (token) =>
+    request('/api/bff/notificaciones/no-leidas', {}, token),
+
+  marcarNotificacionLeida: (id, token) =>
+    request(`/api/bff/notificaciones/${id}/leida`, {
+      method: 'PATCH'
+    }, token),
+
 };
 
 export { API_BASE_URL };

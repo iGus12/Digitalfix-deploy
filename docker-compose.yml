@@ -111,3 +111,22 @@ services:
       - rabbitmq
     networks:
       - digitalfix-net     
+
+
+# 8. Microservicio Notificaciones
+  ms-notificacion:
+    build: ./ms-digitalfix-notificacion
+    container_name: ms-notificacion
+    restart: unless-stopped
+    environment:
+      - RABBITMQ_HOST=rabbitmq
+      - RABBITMQ_PORT=5672
+      - RABBITMQ_USER=admin
+      - RABBITMQ_PASSWORD=admin123
+      # IMPORTANTE: Si configuraste credenciales de Gmail como variables de entorno, agrégalas aquí:
+      # - SPRING_MAIL_USERNAME=tu_correo@gmail.com
+      # - SPRING_MAIL_PASSWORD=tu_password_de_aplicacion
+    depends_on:
+      - rabbitmq
+    networks:
+      - digitalfix-net      

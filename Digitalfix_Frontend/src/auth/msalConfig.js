@@ -5,7 +5,6 @@ export const msalConfig = {
     clientId: import.meta.env.VITE_AZURE_CLIENT_ID,
     authority: `https://login.microsoftonline.com/${import.meta.env.VITE_AZURE_TENANT_ID}`,
     redirectUri: import.meta.env.VITE_AZURE_REDIRECT_URI,
-    postLogoutRedirectUri: 'https://digitalfix-app.duckdns.org/login',
   },
 
   cache: {
@@ -40,10 +39,5 @@ export const msalConfig = {
 };
 
 export const loginRequest = {
-  scopes: [
-    "openid",
-    "profile",
-    "email",
-    import.meta.env.VITE_AZURE_API_SCOPE
-  ],
+  scopes: ["openid", "profile", "email", import.meta.env.VITE_AZURE_API_SCOPE],
 };

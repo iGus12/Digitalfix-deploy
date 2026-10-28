@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 
 @RestController
-@CrossOrigin(origins = "https://digitalfix-app.duckdns.org")
+@CrossOrigin(origins = "http://localhost:5173")
 @RequestMapping("/api/catalog")
 public class CatalogProxyController {
 
@@ -14,7 +14,7 @@ public class CatalogProxyController {
     private RestTemplate restTemplate;
 
     
-    private final String CATALOG_URL = "http://ms-catalog:8081/api/catalog/services";
+    private final String CATALOG_URL = "http://localhost:8081/api/catalog/services";
 
     
     @GetMapping("/services")

@@ -1,3 +1,4 @@
+
 import { NavLink } from 'react-router-dom'
 import {
   LayoutDashboard,
@@ -8,11 +9,14 @@ import {
   LogOut,
   Zap,
   Menu,
-  X
+  X,
+  Bell
 } from 'lucide-react'
 
 import { useState } from 'react'
 import { useMsal } from '@azure/msal-react'
+import { api } from '../services/api'
+import { loginRequest } from '../auth/msalConfig'
 
 const links = [
   {
@@ -49,6 +53,12 @@ const links = [
 
 export default function Layout({ children }) {
   const [open, setOpen] = useState(false)
+  const [notificacionesAbiertas, setNotificacionesAbiertas] = useState(false)
+
+  const [notificaciones, setNotificaciones] = useState([])
+  const [cantidadNoLeidas, setCantidadNoLeidas] = useState(0)
+  const [cargandoNotificaciones, setCargandoNotificaciones] = useState(false)
+  const [errorNotificaciones, setErrorNotificaciones] = useState('')
 
   const { instance, accounts } = useMsal()
 
@@ -56,7 +66,77 @@ export default function Layout({ children }) {
     instance.getActiveAccount() ||
     accounts[0]
 
-  // Datos reales entregados por Microsoft
+  // Obtener token de Microsoft para consultar el BFF
+  const obtenerToken = async () => {
+    if (!account) {
+      throw new Error('No hay una sesión activa.')
+    }
+
+    const respuesta = await instance.acquireTokenSilent({
+      ...loginRequest,
+      account
+    })
+
+    const token = respuesta.accessToken
+
+    return token
+
+  // Consultar notificaciones del usuario autenticado
+  const cargarNotificaciones = async () => {
+    if (!account) return
+
+    setCargandoNotificaciones(true)
+    setErrorNotificaciones('')
+
+    try {
+      const token = await obtenerToken()
+
+      const lista = await api.getNotificaciones(token)
+      const cantidad = await api.getNotificacionesNoLeidas(token)
+
+      setNotificaciones(Array.isArray(lista) ? lista : [])
+      setCantidadNoLeidas(Number(cantidad) || 0)
+
+    } catch (error) {
+      console.error('Error al consultar notificaciones:', error)
+
+      setErrorNotificaciones(
+        'No se pudieron cargar las notificaciones.'
+      )
+    } finally {
+      setCargandoNotificaciones(false)
+    }
+  }
+
+  // Marcar una notificación como leída
+  const marcarComoLeida = async (id) => {
+    try {
+      const token = await obtenerToken()
+
+      await api.marcarNotificacionLeida(id, token)
+
+      setNotificaciones((anteriores) =>
+        anteriores.map((notificacion) =>
+          notificacion.id === id
+            ? { ...notificacion, leida: true }
+            : notificacion
+        )
+      )
+
+      setCantidadNoLeidas((cantidad) =>
+        Math.max(0, cantidad - 1)
+      )
+
+    } catch (error) {
+      console.error('Error al marcar notificación:', error)
+
+      setErrorNotificaciones(
+        'No se pudo marcar la notificación como leída.'
+      )
+    }
+  }
+
+  // Datos reales del usuario autenticado
   const name =
     account?.name ||
     'Usuario'
@@ -65,27 +145,17 @@ export default function Layout({ children }) {
     account?.username ||
     ''
 
-  // Roles provenientes de Microsoft Entra ID.
-  // Todavía puede venir vacío porque aún no configuramos los App Roles.
+  // Roles de Microsoft Entra ID
   const roles =
     (account?.idTokenClaims?.roles || [])
       .map(role => role.toUpperCase())
-
-  console.log('Roles de Entra ID:', roles)
 
   const primaryRole =
     roles.length > 0
       ? roles[0]
       : 'USUARIO MICROSOFT'
 
-  /*
-    TEMPORAL:
-    Mientras todavía no configuramos los roles en Entra ID,
-    mostramos todas las opciones del menú.
-
-    Cuando configuremos ADMIN, SUPERVISOR, CLIENTE y AUDITOR,
-    este mismo código filtrará automáticamente el menú.
-  */
+  // Mantener comportamiento actual de los roles
   const visibleLinks =
     roles.length === 0
       ? links
@@ -99,10 +169,13 @@ export default function Layout({ children }) {
     try {
       await instance.logoutRedirect({
         account,
-        postLogoutRedirectUri: 'https://digitalfix-app.duckdns.org/login'
+        postLogoutRedirectUri: 'http://localhost:5173/login'
       })
     } catch (error) {
-      console.error('Error al cerrar sesión:', error)
+      console.error(
+        'Error al cerrar sesión:',
+        error
+      )
     }
   }
 
@@ -171,18 +244,12 @@ export default function Layout({ children }) {
 
           <div className="user-meta">
 
-            <strong>
-              {name}
-            </strong>
+            <strong>{name}</strong>
 
-            <span>
-              {primaryRole}
-            </span>
+            <span>{primaryRole}</span>
 
             {email && (
-              <small>
-                {email}
-              </small>
+              <small>{email}</small>
             )}
 
           </div>
@@ -206,6 +273,7 @@ export default function Layout({ children }) {
           <button
             className="menu-button"
             onClick={() => setOpen(true)}
+            aria-label="Abrir menú"
           >
             <Menu />
           </button>
@@ -222,9 +290,205 @@ export default function Layout({ children }) {
 
           </div>
 
-          <div className="status-pill">
-            <span></span>
-            Sistema operativo
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '14px'
+            }}
+          >
+
+            <div
+              style={{
+                position: 'relative'
+              }}
+            >
+
+              <button
+                type="button"
+                className="icon-button"
+                aria-label="Notificaciones"
+                aria-expanded={notificacionesAbiertas}
+                onClick={() => {
+                  if (!notificacionesAbiertas) {
+                    cargarNotificaciones()
+                  }
+
+                  setNotificacionesAbiertas(
+                    !notificacionesAbiertas
+                  )
+                }}
+              >
+                <Bell size={21} />
+
+                {cantidadNoLeidas > 0 && (
+                  <span
+                    style={{
+                      position: 'absolute',
+                      top: '-5px',
+                      right: '-7px',
+                      background: '#dc2626',
+                      color: '#fff',
+                      borderRadius: '999px',
+                      minWidth: '18px',
+                      height: '18px',
+                      padding: '0 4px',
+                      fontSize: '10px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center'
+                    }}
+                  >
+                    {cantidadNoLeidas > 99
+                      ? '99+'
+                      : cantidadNoLeidas}
+                  </span>
+                )}
+              </button>
+
+              {notificacionesAbiertas && (
+                <div
+                  style={{
+                    position: 'absolute',
+                    top: '42px',
+                    right: 0,
+                    width: '300px',
+                    maxWidth: 'calc(100vw - 32px)',
+                    padding: '16px',
+                    background: '#fff',
+                    color: '#1f2937',
+                    border: '1px solid #e5e7eb',
+                    borderRadius: '12px',
+                    boxShadow: '0 8px 24px rgba(0,0,0,0.15)',
+                    zIndex: 1000
+                  }}
+                >
+
+                  <strong>Notificaciones</strong>
+
+                  {cantidadNoLeidas > 0 && (
+                    <span
+                      style={{
+                        marginLeft: '10px',
+                        color: '#2563eb',
+                        fontSize: '12px'
+                      }}
+                    >
+                      {cantidadNoLeidas} sin leer
+                    </span>
+                  )}
+
+                  {cargandoNotificaciones ? (
+
+                    <p
+                      style={{
+                        fontSize: '13px',
+                        marginTop: '12px'
+                      }}
+                    >
+                      Cargando notificaciones...
+                    </p>
+
+                  ) : errorNotificaciones ? (
+
+                    <p
+                      style={{
+                        color: '#dc2626',
+                        fontSize: '13px',
+                        marginTop: '12px'
+                      }}
+                    >
+                      {errorNotificaciones}
+                    </p>
+
+                  ) : notificaciones.length === 0 ? (
+
+                    <p
+                      style={{
+                        fontSize: '13px',
+                        marginTop: '12px'
+                      }}
+                    >
+                      No tienes notificaciones por ahora.
+                    </p>
+
+                  ) : (
+
+                    <div
+                      style={{
+                        marginTop: '12px',
+                        maxHeight: '300px',
+                        overflowY: 'auto'
+                      }}
+                    >
+
+                      {notificaciones.map((notificacion) => (
+
+                        <div
+                          key={notificacion.id}
+                          style={{
+                            padding: '10px 0',
+                            borderBottom: '1px solid #e5e7eb',
+                            opacity: notificacion.leida ? 0.6 : 1
+                          }}
+                        >
+
+                          <strong
+                            style={{
+                              fontSize: '13px'
+                            }}
+                          >
+                            {notificacion.titulo}
+                          </strong>
+
+                          <p
+                            style={{
+                              fontSize: '12px',
+                              margin: '5px 0'
+                            }}
+                          >
+                            {notificacion.mensaje}
+                          </p>
+
+                          {!notificacion.leida && (
+
+                            <button
+                              type="button"
+                              onClick={() =>
+                                marcarComoLeida(notificacion.id)
+                              }
+                              style={{
+                                background: 'none',
+                                border: 'none',
+                                padding: 0,
+                                color: '#2563eb',
+                                cursor: 'pointer',
+                                fontSize: '12px'
+                              }}
+                            >
+                              Marcar como leída
+                            </button>
+
+                          )}
+
+                        </div>
+
+                      ))}
+
+                    </div>
+
+                  )}
+
+                </div>
+              )}
+
+            </div>
+
+            <div className="status-pill">
+              <span></span>
+              Sistema operativo
+            </div>
+
           </div>
 
         </header>

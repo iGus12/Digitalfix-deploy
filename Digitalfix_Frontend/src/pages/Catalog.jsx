@@ -16,7 +16,7 @@ export default function Catalog() {
   const fetchCatalog = async () => {
     try {
       const response = await instance.acquireTokenSilent({
-        scopes: [import.meta.env.VITE_AZURE_API_SCOPE], 
+        scopes: [`${import.meta.env.VITE_AZURE_CLIENT_ID}/.default`], 
         account: accounts[0]
       });
       const data = await api.getCatalog(response.accessToken);
