@@ -1,3 +1,4 @@
+
 package cl.digitalfix.notificacion.config;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -33,7 +34,9 @@ public class MensajesProperties {
         this.routingKeys = routingKeys;
     }
 
+    // Exchanges de RabbitMQ
     public static class Exchanges {
+
         private String directo;
         private String tema;
         private String deadLetter;
@@ -63,14 +66,20 @@ public class MensajesProperties {
         }
     }
 
+    // Colas principales y colas de mensajes fallidos
     public static class Colas {
+
         private String gmail;
         private String gmailDlq;
+
         private String despacho;
         private String despachoDlq;
+
         private String reporte;
         private String reporteDlq;
+
         private String interna;
+        private String internaDlq;
 
         public String getGmail() {
             return gmail;
@@ -121,25 +130,40 @@ public class MensajesProperties {
         }
 
         public String getInterna() {
-    return interna;
-}
+            return interna;
+        }
 
         public void setInterna(String interna) {
             this.interna = interna;
         }
+
+        // Cola de mensajes fallidos de notificaciones internas
+        public String getInternaDlq() {
+            return internaDlq;
+        }
+
+        public void setInternaDlq(String internaDlq) {
+            this.internaDlq = internaDlq;
+        }
     }
 
+    // Claves de enrutamiento de RabbitMQ
     public static class RoutingKeys {
+
         private String gmailDirecta;
         private String gmailTema;
         private String gmailDlq;
+
         private String despachoDirecta;
         private String despachoTema;
         private String despachoDlq;
+
         private String reporteDirecta;
         private String reporteTema;
         private String reporteDlq;
+
         private String internaDirecta;
+        private String internaDlq;
 
         public String getGmailDirecta() {
             return gmailDirecta;
@@ -220,6 +244,14 @@ public class MensajesProperties {
         public void setInternaDirecta(String internaDirecta) {
             this.internaDirecta = internaDirecta;
         }
-        
+
+        // Routing key para mensajes fallidos internos
+        public String getInternaDlq() {
+            return internaDlq;
+        }
+
+        public void setInternaDlq(String internaDlq) {
+            this.internaDlq = internaDlq;
+        }
     }
 }

@@ -19,6 +19,8 @@ public class NotificacionInternaConfig {
         this.propiedades = propiedades;
     }
 
+    // Cola principal de notificaciones internas
+    // Su DLQ se configura mediante una politica de RabbitMQ.
     @Bean
     public Queue colaNotificacionesInternas() {
         return QueueBuilder
@@ -26,6 +28,7 @@ public class NotificacionInternaConfig {
                 .build();
     }
 
+    // Enlace de la cola principal al exchange directo
     @Bean
     public Binding bindingNotificacionesInternas(
             @Qualifier("colaNotificacionesInternas") Queue cola,
@@ -35,5 +38,25 @@ public class NotificacionInternaConfig {
                 .bind(cola)
                 .to(exchange)
                 .with(propiedades.getRoutingKeys().getInternaDirecta());
+    }
+
+    // Cola de mensajes fallidos de notificaciones internas
+    @Bean
+    public Queue colaNotificacionesInternasDlq() {
+        return QueueBuilder
+                .durable(propiedades.getColas().getInternaDlq())
+                .build();
+    }
+
+    // Enlace entre la DLQ y el exchange de errores
+    @Bean
+    public Binding bindingNotificacionesInternasDlq(
+            @Qualifier("colaNotificacionesInternasDlq") Queue cola,
+            @Qualifier("exchangeDeadLetter") DirectExchange exchange) {
+
+        return BindingBuilder
+                .bind(cola)
+                .to(exchange)
+                .with(propiedades.getRoutingKeys().getInternaDlq());
     }
 }
