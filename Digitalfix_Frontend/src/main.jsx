@@ -1,4 +1,3 @@
-
 import React from 'react'
 import ReactDOM from 'react-dom/client'
 import { BrowserRouter } from 'react-router-dom'
@@ -14,68 +13,46 @@ import './styles/index.css'
 const msalInstance = new PublicClientApplication(msalConfig)
 
 async function iniciarApp() {
-  const root = ReactDOM.createRoot(
-    document.getElementById('root')
-  )
+  // 1. Inicializar MSAL
+  await msalInstance.initialize()
 
-  try {
-    console.log('[DigitalFix] Inicializando Microsoft MSAL')
+  // 2. Procesar la respuesta cuando Microsoft redirige
+  // nuevamente a localhost
+  const response = await msalInstance.handleRedirectPromise()
 
-    await msalInstance.initialize()
+  // 3. Si acabamos de iniciar sesión, guardar esa cuenta
+  // como la cuenta activa
+  if (response?.account) {
+    msalInstance.setActiveAccount(response.account)
 
-    console.log('[DigitalFix] MSAL inicializado')
-
-    const response = await msalInstance.handleRedirectPromise()
-
-    console.log('[DigitalFix] Redirección procesada')
-
-    if (response?.account) {
-      msalInstance.setActiveAccount(response.account)
-    }
-
-    if (!msalInstance.getActiveAccount()) {
-      const accounts = msalInstance.getAllAccounts()
-
-      if (accounts.length > 0) {
-        msalInstance.setActiveAccount(accounts[0])
-      }
-    }
-
-    console.log('[DigitalFix] Iniciando React')
-
-    root.render(
-      <React.StrictMode>
-        <MsalProvider instance={msalInstance}>
-          <BrowserRouter>
-            <App />
-          </BrowserRouter>
-        </MsalProvider>
-      </React.StrictMode>
-    )
-
-  } catch (error) {
-    console.error(
-      '[DigitalFix] Error durante la inicialización:',
-      error
-    )
-
-    root.render(
-      <div style={{
-        padding: '30px',
-        fontFamily: 'Arial, sans-serif'
-      }}>
-        <h2>No se pudo iniciar DigitalFix</h2>
-        <p>
-          Ocurrió un error durante la inicialización
-          de la aplicación.
-        </p>
-        <p>
-          Revisa la consola del navegador para
-          identificar la causa.
-        </p>
-      </div>
+    console.log(
+      'Cuenta autenticada con Microsoft:',
+      response.account
     )
   }
+
+  // 4. Si ya existía una sesión anterior,
+  // recuperar la cuenta guardada
+  if (!msalInstance.getActiveAccount()) {
+    const accounts = msalInstance.getAllAccounts()
+
+    if (accounts.length > 0) {
+      msalInstance.setActiveAccount(accounts[0])
+    }
+  }
+
+  // 5. Levantar React
+  ReactDOM.createRoot(
+    document.getElementById('root')
+  ).render(
+    <React.StrictMode>
+      <MsalProvider instance={msalInstance}>
+        <BrowserRouter>
+          <App />
+        </BrowserRouter>
+      </MsalProvider>
+    </React.StrictMode>
+  )
 }
 
 iniciarApp()
